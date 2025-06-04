@@ -1,19 +1,31 @@
-import { Box, Heading, HStack, Img, IconButton } from "@chakra-ui/react";
+import { Box, Heading, HStack, Img, IconButton, useBreakpointValue } from "@chakra-ui/react";
 import React from "react";
 import { HiMenu } from "react-icons/hi";
 
 const Navbar = ({ toggleSidebar }) => {
+  const showToggleIcon = useBreakpointValue({ base: true, md: false });
+
+  // Determine the greeting based on the current hour
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
+
   return (
-    <HStack as="nav" w="100%" p="8" bg="white">
-      <IconButton
-        icon={<HiMenu />}
-        aria-label="Toggle Sidebar"
-        onClick={toggleSidebar}
-        variant="outline"
-        colorScheme="gray"
-      />
+    <HStack as="nav" w="100%" py={{base: "8", md: "10"}} px={{ base: "4", md: "8" }} bg="white">
+      {showToggleIcon && (
+        <IconButton
+          icon={<HiMenu />}
+          aria-label="Toggle Sidebar"
+          onClick={toggleSidebar}
+          variant="outline"
+          colorScheme="gray"
+        />
+      )}
       <Heading as="h2" fontSize="clamp(1rem, 1.5vw, 2rem)">
-        Hi,
+        Hi, {getGreeting()}
       </Heading>
       <HStack ml="auto">
         <Img

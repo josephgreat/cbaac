@@ -85,7 +85,6 @@ const RegistrationForm = () => {
           attendance_choices: formData.attendance_choices,
         }
       );
-      console.log("Registration successful:", response.data);
       setShowDynamicAlert({
         show: true,
         status: "success",
@@ -93,7 +92,6 @@ const RegistrationForm = () => {
         description: "You have successfully registered for the conference.",
       }); // Ensure this is triggered after a successful response
     } catch (error) {
-      console.error("Error registering:", error);
       setShowDynamicAlert({
         show: true,
         status: "error",
@@ -116,32 +114,40 @@ const RegistrationForm = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    if (typeof e === "string") {
+      // Handle RadioGroup changes
+      setFormData((prevData) => ({
+        ...prevData,
+        attendance_choices: e,
+      }));
+    } else {
+      // Handle other input changes
+      const { name, value } = e.target;
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   // Example usage:
   const firstKey = getFirstKey(formData);
-  console.log("First key in the data object:", firstKey);
 
   return (
     <Box>
       <DynamicAlert
+        isOpen={showDynamicAlert.show} // Ensure `isOpen` is correctly passed
         status={showDynamicAlert.status}
         title={showDynamicAlert.title}
         description={showDynamicAlert.description}
-        isOpen={showDynamicAlert.show}
-        onClose={() =>
+        onClose={() => {
           setShowDynamicAlert({
             show: false,
             status: "",
             title: "",
             description: "",
-          })
-        }
+          });
+        }}
       />
 
       <Stack spacing={4}>
@@ -206,7 +212,7 @@ const RegistrationForm = () => {
           alignItems="center"
         >
           <FormControl id="state" isRequired isInvalid={formErrors.state}>
-            <FormLabel fontSize="clamp(.65rem, 1vw, 1rem)" >State</FormLabel>
+            <FormLabel fontSize="clamp(.65rem, 1vw, 1rem)">State</FormLabel>
             <Select
               placeholder="Select State"
               value={formData.state}
@@ -223,7 +229,11 @@ const RegistrationForm = () => {
               <FormHelperText>{formErrors.state}</FormHelperText>
             )}
           </FormControl>
-          <FormControl id="phone-number" isInvalid={formErrors.phone_number} isRequired>
+          <FormControl
+            id="phone-number"
+            isInvalid={formErrors.phone_number}
+            isRequired
+          >
             <FormLabel fontSize="clamp(.65rem, 1vw, 1rem)">
               Phone number
             </FormLabel>
@@ -243,20 +253,17 @@ const RegistrationForm = () => {
           <FormLabel fontSize="clamp(.65rem, 1vw, 1rem)">
             Mode of Attendance
           </FormLabel>
-          <RadioGroup colorScheme="primary" value={formData.attendance_choices}>
+          <RadioGroup
+            colorScheme="primary"
+            name="attendance_choices"
+            onChange={handleChange}
+            value={formData.attendance_choices}
+          >
             <HStack spacing="24px">
-              <Radio
-                value="Virtual"
-                name="attendance_choices"
-                onChange={handleChange}
-              >
+              <Radio value="Virtual" name="attendance_choices">
                 Online
               </Radio>
-              <Radio
-                value="In-person"
-                name="attendance_choices"
-                onChange={handleChange}
-              >
+              <Radio value="In-person" name="attendance_choices">
                 In-Person
               </Radio>
             </HStack>

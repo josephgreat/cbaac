@@ -1,23 +1,27 @@
-import { Box, Container, VStack } from "@chakra-ui/react";
+import { Box, Container, VStack, useBreakpointValue } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
 const AdminWrapper = ({ Component }) => {
-  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const isDefaultSidebarVisible = useBreakpointValue({ base: false, md: true });
+  const [isSidebarVisible, setIsSidebarVisible] = useState(isDefaultSidebarVisible);
 
   const toggleSidebar = () => {
     setIsSidebarVisible((prev) => !prev);
   };
 
-  // useEffect(() => {
-  //   const accessToken = Cookies.get("access_token");
-  //   if (!accessToken) {
-  //     window.location.href = "/admin";
-  //   }
-  // }, []);
-  
+  useEffect(() => {
+    setIsSidebarVisible(isDefaultSidebarVisible);
+  }, [isDefaultSidebarVisible]);
+
+  useEffect(() => {
+    const accessToken = Cookies.get("cbaac_admin_2025_conference_access_token");
+    if (!accessToken) {
+      window.location.href = "/admin";
+    }
+  }, []);
 
   return (
     <Container
@@ -30,21 +34,24 @@ const AdminWrapper = ({ Component }) => {
     >
       <Box
         bg="url('/images/cbaac_flyer.jpg') no-repeat center"
-        filter="blur(2px) brightness(0.3)"
+        filter="blur(2px) brightness(0.5)"
         opacity="0.05"
         bgSize="cover"
         pos="fixed"
         inset="0"
       />
-      <Sidebar isVisible={isSidebarVisible} />
+      <Sidebar isVisible={isSidebarVisible} toggleSidebar={toggleSidebar} />
       <VStack
-        pl={isSidebarVisible ? "clamp(10rem, 15vw, 15rem)" : "0"}
+        pl={{
+          // base: isSidebarVisible ? "clamp(15rem, 17vw, 20rem)" : "0",
+          md: "clamp(15rem, 17vw, 20rem)",
+        }}
         pos="relative"
         w="100%"
         alignItems="flex-start"
       >
         <Navbar toggleSidebar={toggleSidebar} />
-        <Box p="8" py="6">
+        <Box px={{ base: "4", md: "8" }} py="6" w="100%">
           <Component />
         </Box>
       </VStack>

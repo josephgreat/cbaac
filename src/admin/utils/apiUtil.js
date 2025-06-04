@@ -8,13 +8,13 @@ const apiClient = axios.create({
 // Add a request interceptor to include the access token in headers
 apiClient.interceptors.request.use(
   async (config) => {
-    const accessToken = Cookies.get("access_token");
+    const accessToken = Cookies.get("cbaac_admin_2025_conference_access_token");
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     } else {
       // Redirect to login if no access token is available
-      window.location.href = "/admin/login";
+      window.location.href = "/admin";
     }
 
     return config;
@@ -38,7 +38,9 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = Cookies.get("refresh_token");
+        const refreshToken = Cookies.get(
+          "cbaac_admin_2025_conference_refresh_token"
+        );
 
         if (!refreshToken) {
           console.error("No refresh token available");
@@ -48,18 +50,20 @@ apiClient.interceptors.response.use(
 
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/token/refresh/`,
-          { refresh_token: refreshToken }
+          { refresh: refreshToken }
         );
 
-        const { access_token } = response.data;
-        Cookies.set("access_token", access_token, { expires: 1 });
+        const { access } = response.data;
+        Cookies.set("cbaac_admin_2025_conference_access_token", access, {
+          expires: 1,
+        });
 
         // Retry the original request with the new access token
-        originalRequest.headers.Authorization = `Bearer ${access_token}`;
+        originalRequest.headers.Authorization = `Bearer ${access}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
         console.error("Error refreshing access token:", refreshError);
-        window.location.href = "/admin/login";
+        window.location.href = "/admin";
         return Promise.reject(refreshError);
       }
     }
@@ -69,3 +73,21 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
+
+
+export const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const day = days[date.getDay()];
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return `${day}, ${date.toLocaleDateString(undefined, options)}`;
+  };

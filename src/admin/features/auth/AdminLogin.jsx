@@ -16,10 +16,19 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import DynamicAlert from "../../../components/DynamicAlert";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    title: "",
+    description: "",
+    status: "",
+  });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,42 +47,34 @@ const AdminLogin = () => {
         `${import.meta.env.VITE_API_URL}/token/`,
         formData
       );
-      const { access_token, refresh_token } = response.data;
-      Cookies.set("access_token", access_token, { expires: 1 });
-      Cookies.set("refresh_token", refresh_token, { expires: 7 });
-      console.log("Login successful:", response.data);
-      window.location.href = "/admin/registered-users";
+      const { access, refresh } = response.data;
+      Cookies.set("cbaac_admin_2025_conference_access_token", access, {
+        expires: 1,
+      });
+      Cookies.set("cbaac_admin_2025_conference_refresh_token", refresh, {
+        expires: 7,
+      });
+      navigate("/admin/registered-users");
     } catch (error) {
-      console.error("Error logging in:", error);
+      if (error.response?.status === 401) {
+        setAlert({
+          isOpen: true,
+          title: "Login Failed",
+          description: "Wrong username or password. Please try again.",
+          status: "error",
+        });
+      } else {
+        setAlert({
+          isOpen: true,
+          title: "Login Failed",
+          description: `Error: ${error.message}`,
+          status: "error",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
-
-  const refreshAccessToken = async () => {
-    try {
-      const refreshToken = Cookies.get("refresh_token");
-      if (!refreshToken) {
-        console.error("No refresh token available");
-        window.location.href = "/admin/login";
-        return;
-      }
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/token/refresh/`,
-        { refresh_token: refreshToken }
-      );
-
-      const { access_token } = response.data;
-      Cookies.set("access_token", access_token, { expires: 1 });
-      console.log("Access token refreshed successfully");
-    } catch (error) {
-      console.error("Error refreshing access token:", error);
-      window.location.href = "/admin/login";
-    }
-  };
-
-
 
   return (
     <Flex
@@ -93,7 +94,7 @@ const AdminLogin = () => {
       >
         <Box
           bg="url('/images/cbaac_flyer.jpg') no-repeat top center"
-          filter={{ base: "blur(2px) brightness(.8)", md: "unset" }}
+          filter={{ base: " brightness(.8)", md: "unset" }}
           bgSize={"cover"}
           w="100%"
           h="100%"
@@ -105,7 +106,7 @@ const AdminLogin = () => {
           bg={{ base: "whiteAlpha.800", md: "unset" }}
         /> */}
       </Box>
-      <Center w={{ md: "50%" }} maxW={"85vw"} zIndex={2}>
+      <Center w={{ md: "50%" }} maxW={"85vw"} zIndex={2} shadow={"lg"}>
         <VStack
           bg="white"
           shadow={"lg"}
@@ -116,7 +117,7 @@ const AdminLogin = () => {
         >
           <HStack>
             <Img
-              src="images/cbaac_logo.png"
+              src="/images/cbaac_logo.png"
               alt="CBAAC Logo"
               w="clamp(1.5rem, 2.5vw, 2.5rem)"
               h="clamp(1.5rem, 2.5vw, 2.5rem)"
@@ -140,7 +141,7 @@ const AdminLogin = () => {
             Admin Login
           </Heading>
 
-          <Stack gap="4" w="full" as="form" onSubmit={handleSubmit}>
+          <Stack gap="4" w="full" as="form">
             <FormControl>
               <FormLabel>Username</FormLabel>
               <Input
@@ -159,12 +160,26 @@ const AdminLogin = () => {
                 onChange={handleChange}
               />
             </FormControl>
-            <Button type="submit" colorScheme="primary" isLoading={isLoading}>
+            <Button
+              type="submit"
+              colorScheme="primary"
+              isLoading={isLoading}
+              onClick={handleSubmit}
+            >
               Login
             </Button>
           </Stack>
         </VStack>
       </Center>
+      <DynamicAlert
+        isOpen={alert.isOpen}
+        description={alert.description}
+        title={alert.title}
+        status={alert.status}
+        onClose={() =>
+          setAlert({ isOpen: false, title: "", description: "", status: "" })
+        }
+      />
     </Flex>
   );
 };

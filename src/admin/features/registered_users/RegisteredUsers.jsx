@@ -11,6 +11,7 @@ import {
   Skeleton,
   SkeletonText,
   Link,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -22,27 +23,32 @@ import { HiOutlineInformationCircle } from "react-icons/hi2";
 const RegisteredUsers = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const toast = useToast();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const accessToken = Cookies.get("access_token");
-        // if (!accessToken) {
-        //   window.location.href = "/admin";
-        //   return;
-        // }
+        const accessToken = Cookies.get(
+          "cbaac_admin_2025_conference_access_token"
+        );
+        if (!accessToken) {
+          window.location.href = "/admin";
+          return;
+        }
 
         const response = await axios.get(
           `${import.meta.env.VITE_API_URL}/registration/`
-          //   {
-          //     headers: {
-          //       Authorization: `Bearer ${accessToken}`,
-          //     },
-          //   }
         );
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching registered users:", error);
+        toast({
+          title: "Error fetching registered users.",
+          description: "Please try again later.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -54,19 +60,22 @@ const RegisteredUsers = () => {
   return (
     <Box>
       <Heading fontSize={"clamp(1.7rem, 2vw, 2.2rem)"} mb="4">
-        Registered Users
+        Registered Users {users.length > 0 && `(${users.length})`}
       </Heading>
-      <TableContainer maxW={"calc(100vw - 20rem)"} overflow={"auto"}>
+      <TableContainer
+        maxW={{ base: "calc(100vw - 4rem)", md: "calc(100vw - 20rem)" }}
+        overflow={"auto"}
+      >
         <Table>
           <Thead>
             <Tr>
-              <Th>ID</Th>
+              {/* <Th>ID</Th> */}
               <Th>Name</Th>
-              <Th>Email</Th>
+              {/* <Th>Email</Th> */}
               <Th>Phone Number</Th>
-              <Th>State</Th>
+              {/* <Th>State</Th> */}
               <Th>Attendance Choices</Th>
-              <Th>Registration Date</Th>
+              {/* <Th>Registration Date</Th> */}
               <Th>Actions</Th>
             </Tr>
           </Thead>
@@ -84,13 +93,13 @@ const RegisteredUsers = () => {
             <Tbody>
               {users.map((user) => (
                 <Tr key={user.id}>
-                  <Td>{user.id}</Td>
+                  {/* <Td>{user.id}</Td> */}
                   <Td>{user.name}</Td>
-                  <Td>{user.email}</Td>
+                  {/* <Td>{user.email}</Td> */}
                   <Td>{user.phone_number}</Td>
-                  <Td>{user.state}</Td>
+                  {/* <Td>{user.state}</Td> */}
                   <Td>{user.attendance_choices}</Td>
-                  <Td>{user.registration_date}</Td>
+                  {/* <Td>{formatDate(user.registration_date)}</Td> */}
                   <Td textAlign={"center"}>
                     <Link
                       as={RouteLink}
@@ -98,13 +107,13 @@ const RegisteredUsers = () => {
                       display="flex"
                       justifyContent="center"
                       color="default.500"
-                     _hover={{color: "default.300"}}
+                      _hover={{ color: "default.300" }}
                     >
                       <HiOutlineInformationCircle
                         color="blue.500"
                         cursor="pointer"
                       />
-                    </Link>   
+                    </Link>
                   </Td>
                 </Tr>
               ))}

@@ -21,9 +21,9 @@ import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
 const DynamicAlert = ({ isOpen, onClose, status, title, description }) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered >
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent  maxW={"90vw"} w="fit-content">
         <ModalHeader display="flex">
           <CloseButton onClick={onClose} border={"0"} outline={"0"} ml="auto" />
         </ModalHeader>
@@ -33,9 +33,10 @@ const DynamicAlert = ({ isOpen, onClose, status, title, description }) => {
               as={status === "success" ? FaCheckCircle : FaExclamationCircle}
               color={status === "success" ? "primary.500" : "red.500"}
               fontSize={"5rem"}
+              mb="4"
             />
-            <Heading as="h4">{title}</Heading>
-            <Text>{description}</Text>
+            <Heading as="h4" textAlign={"center"} fontSize={"clamp(1.2rem, 1.8vw, 2.5rem)"}>{title}</Heading>
+            <Text textAlign={"center"}>{description}</Text>
           </VStack>
         </ModalBody>
       </ModalContent>

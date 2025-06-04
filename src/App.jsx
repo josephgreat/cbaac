@@ -28,7 +28,7 @@ function App() {
     },
     {
       path: "/admin/registered-users/:id",
-      element: <RegisteredUserDetail />,
+      element: <AdminWrapper Component={RegisteredUserDetail} />,
     },
   ]);
   return <RouterProvider router={router} />;
