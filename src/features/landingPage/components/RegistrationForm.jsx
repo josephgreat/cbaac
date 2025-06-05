@@ -15,7 +15,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { states } from "../../../assets/state";
+import countries from "../../../assets/CountryCodes.json";
 import axios from "axios";
 import DynamicAlert from "../../../components/DynamicAlert";
 
@@ -24,7 +24,7 @@ const RegistrationForm = () => {
     first_name: "",
     last_name: "",
     email: "",
-    state: "",
+    country: "",
     phone_number: "",
     attendance_choices: "In-person",
   });
@@ -50,10 +50,10 @@ const RegistrationForm = () => {
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
         ? "Valid email is required."
         : "";
-    errors.state = !formData.state.trim() ? "State is required." : "";
+    errors.country = !formData.country.trim() ? "Country is required." : "";
     errors.phone_number =
       !formData.phone_number.trim() ||
-      !/^((\+234)|0)?\d{10}$/.test(formData.phone_number)
+      !/^\+\d{1,4}\d{6,14}$/.test(formData.phone_number)
         ? "Valid phone number is required."
         : "";
     return errors;
@@ -81,7 +81,7 @@ const RegistrationForm = () => {
         {
           name: `${formData.first_name} ${formData.last_name}`,
           email: formData.email,
-          state: formData.state,
+          country: formData.country,
           phone_number: formattedPhoneNumber,
           attendance_choices: formData.attendance_choices,
         }
@@ -107,7 +107,7 @@ const RegistrationForm = () => {
         first_name: "",
         last_name: "",
         email: "",
-        state: "",
+        country: "",
         phone_number: "",
         attendance_choices: "In-person",
       });
@@ -129,6 +129,17 @@ const RegistrationForm = () => {
         [name]: value,
       }));
     }
+  };
+
+  const handleCountryChange = (e) => {
+    const selectedCountry = countries.find(
+      (country) => country.name === e.target.value
+    );
+    setFormData((prevData) => ({
+      ...prevData,
+      country: selectedCountry.name,
+      phone_number: selectedCountry.dial_code,
+    }));
   };
 
   // Example usage:
@@ -212,22 +223,22 @@ const RegistrationForm = () => {
           gap="4"
           alignItems="center"
         >
-          <FormControl id="state" isRequired isInvalid={formErrors.state}>
-            <FormLabel fontSize="clamp(.65rem, 1vw, 1rem)">State</FormLabel>
+          <FormControl id="country" isRequired isInvalid={formErrors.country}>
+            <FormLabel fontSize="clamp(.65rem, 1vw, 1rem)">Country</FormLabel>
             <Select
-              placeholder="Select State"
-              value={formData.state}
-              onChange={handleChange}
-              name="state"
+              placeholder="Select Country"
+              value={formData.country}
+              onChange={handleCountryChange}
+              name="country"
             >
-              {states.map((state) => (
-                <option key={state} value={state}>
-                  {state}
+              {countries.map((country) => (
+                <option key={country.code} value={country.name}>
+                  {country.name}
                 </option>
               ))}
             </Select>
-            {formErrors.state && (
-              <FormHelperText>{formErrors.state}</FormHelperText>
+            {formErrors.country && (
+              <FormHelperText>{formErrors.country}</FormHelperText>
             )}
           </FormControl>
           <FormControl

@@ -1,6 +1,8 @@
 import {
   Box,
+  Button,
   Heading,
+  Input,
   Table,
   TableContainer,
   Tbody,
@@ -12,17 +14,34 @@ import {
   SkeletonText,
   Link,
   useToast,
+  Flex,
+  InputGroup,
+  InputLeftAddon,
 } from "@chakra-ui/react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { Link as RouteLink } from "react-router-dom";
-import { FaInfoCircle } from "react-icons/fa";
+import { FaInfoCircle, FaSearch } from "react-icons/fa";
 import { HiOutlineInformationCircle } from "react-icons/hi2";
+import { HiOutlineSearch } from "react-icons/hi";
 
 const RegisteredUsers = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const usersPerPage = 15;
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const displayedUsers = filteredUsers.slice(
+    (currentPage - 1) * usersPerPage,
+    currentPage * usersPerPage
+  );
+
   const toast = useToast();
 
   useEffect(() => {
@@ -57,11 +76,35 @@ const RegisteredUsers = () => {
     fetchUsers();
   }, []);
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
   return (
     <Box>
-      <Heading fontSize={"clamp(1.7rem, 2vw, 2.2rem)"} mb="4">
-        Registered Users {users.length > 0 && `(${users.length})`}
-      </Heading>
+      <Flex
+        flexWrap={"wrap"}
+        justifyContent="space-between"
+        alignItems="center"
+        mb="4"
+      >
+        <Heading fontSize={"clamp(1.7rem, 2vw, 2.2rem)"} mb="4">
+          Registered Users {users.length > 0 && `(${users.length})`}
+        </Heading>
+        <InputGroup w="min(20rem, 100%)">
+          <Input
+            placeholder="Search by name"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            mb="4"
+          />
+        </InputGroup>
+      </Flex>
       <TableContainer
         maxW={{ base: "calc(100vw - 4rem)", md: "calc(100vw - 20rem)" }}
         overflow={"auto"}
@@ -69,13 +112,9 @@ const RegisteredUsers = () => {
         <Table>
           <Thead>
             <Tr>
-              {/* <Th>ID</Th> */}
               <Th>Name</Th>
-              {/* <Th>Email</Th> */}
               <Th>Phone Number</Th>
-              {/* <Th>State</Th> */}
               <Th>Attendance Choices</Th>
-              {/* <Th>Registration Date</Th> */}
               <Th>Actions</Th>
             </Tr>
           </Thead>
@@ -91,15 +130,11 @@ const RegisteredUsers = () => {
             </Tbody>
           ) : (
             <Tbody>
-              {users.map((user) => (
+              {displayedUsers.map((user) => (
                 <Tr key={user.id}>
-                  {/* <Td>{user.id}</Td> */}
                   <Td>{user.name}</Td>
-                  {/* <Td>{user.email}</Td> */}
                   <Td>{user.phone_number}</Td>
-                  {/* <Td>{user.state}</Td> */}
                   <Td>{user.attendance_choices}</Td>
-                  {/* <Td>{formatDate(user.registration_date)}</Td> */}
                   <Td textAlign={"center"}>
                     <Link
                       as={RouteLink}
@@ -121,6 +156,18 @@ const RegisteredUsers = () => {
           )}
         </Table>
       </TableContainer>
+      <Flex justifyContent="center" mt="4">
+        {Array.from({ length: totalPages }).map((_, index) => (
+          <Button
+            key={index}
+            onClick={() => handlePageChange(index + 1)}
+            colorScheme={currentPage === index + 1 ? "blue" : "gray"}
+            mx="1"
+          >
+            {index + 1}
+          </Button>
+        ))}
+      </Flex>
     </Box>
   );
 };

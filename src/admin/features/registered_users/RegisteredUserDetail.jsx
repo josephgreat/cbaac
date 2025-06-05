@@ -31,6 +31,7 @@ const RegisteredUserDetail = () => {
     try {
       const response = await apiClient.get(`/registration/${id}/`);
       setUser(response.data);
+      console.log(response.data);
     } catch (error) {
       console.error("Error fetching user details:", error);
       toast({
@@ -85,9 +86,9 @@ const RegisteredUserDetail = () => {
             <Icon fontSize="2rem" as={HiOutlineLocationMarker} />{" "}
             <VStack alignItems={"flex-start"} gap="0">
               <Text fontWeight={500} fontSize={".85rem"}>
-                State:
+                Country:
               </Text>{" "}
-              <Text fontSize={"1.2rem"}>{user.state}</Text>
+              <Text fontSize={"1.2rem"}>{user.country}</Text>
             </VStack>
           </HStack>
           <HStack gap="4">
@@ -123,7 +124,7 @@ const RegisteredUserDetail = () => {
             <strong>Phone Number:</strong> <Skeleton height="20px" />
           </Box>
           <Box>
-            <strong>State:</strong> <Skeleton height="20px" />
+            <strong>Country:</strong> <Skeleton height="20px" />
           </Box>
           <Box>
             <strong>Attendance Choices:</strong> <Skeleton height="20px" />
