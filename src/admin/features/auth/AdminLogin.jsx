@@ -106,7 +106,7 @@ const AdminLogin = () => {
           bg={{ base: "whiteAlpha.800", md: "unset" }}
         /> */}
       </Box>
-      <Center w={{ md: "50%" }} maxW={"85vw"} zIndex={2} shadow={"lg"}>
+      <Center w={{ md: "50%" }} maxW={"85vw"} zIndex={2}>
         <VStack
           bg="white"
           shadow={"lg"}
