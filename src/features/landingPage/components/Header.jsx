@@ -1,10 +1,10 @@
-import { Center, Flex, Heading, Img, Text } from "@chakra-ui/react";
+import { Center, Flex, Heading, Img, Link, Text } from "@chakra-ui/react";
 import React from "react";
 
 const Header = () => {
   return (
     <Center flexDir={"column"}>
-      <Flex gap="2" alignItems={"center"}>
+      <Flex gap="2" alignItems={"center"} as={Link} href="https://cbaac.gov.ng/" target="_blank">
         <Img
           src="images/cbaac_logo.png"
           alt="CBAAC Logo"

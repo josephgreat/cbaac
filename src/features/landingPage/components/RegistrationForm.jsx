@@ -12,6 +12,7 @@ import {
   Select,
   useToast,
   FormHelperText,
+  Link,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { states } from "../../../assets/state";
@@ -280,6 +281,9 @@ const RegistrationForm = () => {
         >
           Register
         </Button>
+        <Link href="https://cbaac.gov.ng/" target="_blank" mx="auto">
+          Visit our website
+        </Link>
       </Stack>
     </Box>
   );
