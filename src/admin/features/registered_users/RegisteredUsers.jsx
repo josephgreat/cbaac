@@ -161,7 +161,7 @@ const RegisteredUsers = () => {
           <Button
             key={index}
             onClick={() => handlePageChange(index + 1)}
-            colorScheme={currentPage === index + 1 ? "blue" : "gray"}
+            colorScheme={currentPage === index + 1 ? "primary" : "gray"}
             mx="1"
           >
             {index + 1}
