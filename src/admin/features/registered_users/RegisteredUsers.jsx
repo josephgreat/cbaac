@@ -17,6 +17,8 @@ import {
   Flex,
   InputGroup,
   InputLeftAddon,
+  Select,
+  Text,
 } from "@chakra-ui/react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -25,22 +27,38 @@ import { Link as RouteLink } from "react-router-dom";
 import { FaInfoCircle, FaSearch } from "react-icons/fa";
 import { HiOutlineInformationCircle } from "react-icons/hi2";
 import { HiOutlineSearch } from "react-icons/hi";
+import { CSVLink } from "react-csv";
 
 const RegisteredUsers = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [attendanceFilter, setAttendanceFilter] = useState("");
+  const [isCsvLoading, setIsCsvLoading] = useState(false);
 
   const usersPerPage = 15;
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch = user.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesAttendance = attendanceFilter
+      ? user.attendance_choices === attendanceFilter
+      : true;
+    return matchesSearch && matchesAttendance;
+  });
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
   const displayedUsers = filteredUsers.slice(
     (currentPage - 1) * usersPerPage,
     currentPage * usersPerPage
   );
+
+  const virtualCount = users.filter(
+    (user) => user.attendance_choices === "Virtual"
+  ).length;
+  const inPersonCount = users.filter(
+    (user) => user.attendance_choices === "In-person"
+  ).length;
 
   const toast = useToast();
 
@@ -85,6 +103,18 @@ const RegisteredUsers = () => {
     setCurrentPage(newPage);
   };
 
+  const handleAttendanceFilterChange = (e) => {
+    setAttendanceFilter(e.target.value);
+    setCurrentPage(1); // Reset to first page on filter change
+  };
+
+  const handleCsvDownload = () => {
+    setIsCsvLoading(true);
+    setTimeout(() => {
+      setIsCsvLoading(false);
+    }, 1000); // Simulate download completion
+  };
+
   return (
     <Box>
       <Flex
@@ -96,15 +126,43 @@ const RegisteredUsers = () => {
         <Heading fontSize={"clamp(1.7rem, 2vw, 2.2rem)"} mb="4">
           Registered Users {users.length > 0 && `(${users.length})`}
         </Heading>
-        <InputGroup w="min(20rem, 100%)">
-          <Input
-            placeholder="Search by name"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            mb="4"
-          />
-        </InputGroup>
+        <Flex gap="2" flexWrap="wrap">
+          <InputGroup w="min(20rem, 100%)">
+            <Input
+              placeholder="Search by name"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              mb="4"
+            />
+          </InputGroup>
+          <Select
+            placeholder="Filter by attendance"
+            value={attendanceFilter}
+            onChange={handleAttendanceFilterChange}
+            w="min(8rem, 100%)"
+          >
+            <option value="Virtual">Virtual</option>
+            <option value="In-person">In-person</option>
+          </Select>
+          <Button
+            colorScheme="primary"
+            isLoading={isCsvLoading}
+            onClick={handleCsvDownload}
+          >
+            <CSVLink
+              data={users}
+              filename="registered_users.csv"
+              style={{ textDecoration: "none", color: "white" }}
+              onClick={handleCsvDownload}
+            >
+              Download CSV
+            </CSVLink>
+          </Button>
+        </Flex>
       </Flex>
+      <Text mb="4">
+        Virtual: {virtualCount} | In-person: {inPersonCount}
+      </Text>
       <TableContainer
         maxW={{ base: "calc(100vw - 4rem)", md: "calc(100vw - 20rem)" }}
         overflow={"auto"}
